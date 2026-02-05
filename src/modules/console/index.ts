@@ -1,7 +1,7 @@
 import { Effect, Layer, Context } from "effect";
 import readline from "node:readline";
 
-class ConsoleService extends Context.Tag("ConsoleService")<
+export class ConsoleService extends Context.Tag("ConsoleService")<
   ConsoleService,
   {
     readonly ask: (question: string) => Effect.Effect<string>;
@@ -9,7 +9,7 @@ class ConsoleService extends Context.Tag("ConsoleService")<
   }
 >() {}
 
-const NodeConsoleLayer = Layer.scoped(
+export const NodeConsoleLayer = Layer.scoped(
   ConsoleService,
   Effect.gen(function* () {
     const rl = readline.createInterface({

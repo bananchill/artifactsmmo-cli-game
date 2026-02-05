@@ -1,4 +1,4 @@
 import { Effect } from "effect";
-import { ConsoleProgram } from "../modules/console/index.js";
+import { ActionsProgram } from "../modules/actions/index.js";
 
-Effect.runPromise(ConsoleProgram);
+Effect.runPromise(ActionsProgram);
