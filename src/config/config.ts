@@ -1,4 +1,4 @@
-export default function (): { gameToken: string; hero: string[] } {
+export default function (): { gameToken: string; hero: string[]; url: string } {
   const gameToken = process.env.GAME_TOKEN;
 
   if (!gameToken) {
@@ -8,5 +8,6 @@ export default function (): { gameToken: string; hero: string[] } {
   return {
     gameToken,
     hero: ["ban"],
+    url: "https://api.artifactsmmo.com",
   };
 }

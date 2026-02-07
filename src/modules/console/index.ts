@@ -1,44 +1,47 @@
 import { Effect, Layer, Context } from "effect";
-import readline from "node:readline";
+import { Terminal } from "@effect/platform";
+import type { PlatformError } from "@effect/platform/Error";
+import { NodeTerminal } from "@effect/platform-node";
 
-export class ConsoleService extends Context.Tag("ConsoleService")<
-  ConsoleService,
+export class NodeConsoleService extends Context.Tag("NodeConsoleService")<
+  NodeConsoleService,
   {
-    readonly ask: (question: string) => Effect.Effect<string>;
-    readonly log: (message: string) => Effect.Effect<void>;
+    readonly ask: (
+      question: string,
+    ) => Effect.Effect<string, PlatformError | Terminal.QuitException>;
+    readonly log: (message: string) => Effect.Effect<void, PlatformError>;
   }
 >() {}
 
-export const NodeConsoleLayer = Layer.scoped(
-  ConsoleService,
+export const NodeConsoleLive = Layer.effect(
+  NodeConsoleService,
   Effect.gen(function* () {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    yield* Effect.addFinalizer(() => Effect.sync(() => rl.close()));
+    const terminal = yield* Terminal.Terminal;
 
     return {
       ask: (question: string) =>
-        Effect.async<string>((resume) => {
-          rl.question(question, (answer) => {
-            resume(Effect.succeed(answer));
-          });
-        }),
+        Effect.gen(function* () {
+          yield* terminal.display(question);
 
+          return yield* terminal.readLine;
+        }),
       log: (message: string) =>
-        Effect.sync(() => {
-          console.log(message);
+        Effect.gen(function* () {
+          yield* terminal.display(message);
         }),
     };
   }),
+).pipe(
+  Layer.catchAll((configError) =>
+    Layer.effect(
+      NodeConsoleService,
+      Effect.gen(function* () {
+        console.log(configError, 3333);
+
+        return {} as any;
+      }),
+    ),
+  ),
 );
 
-export const ConsoleProgram = Effect.gen(function* () {
-  const console = yield* ConsoleService;
-
-  const name = yield* console.ask("Введите имя: ");
-
-  yield* console.log(`Привет, ${name}!`);
-}).pipe(Effect.provide(NodeConsoleLayer));
+export const NodeConsoleMainLive = NodeConsoleLive.pipe(Layer.provide(NodeTerminal.layer));
