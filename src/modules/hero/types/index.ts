@@ -1,6 +1,6 @@
-import type { Inventory } from "../../inventory/types/index.js";
+import type { IInventory } from "../../inventory/types/index.js";
 
-export interface Hero {
+export interface IHero {
   name: string;
   account: string;
   skin: string;
@@ -84,5 +84,5 @@ export interface Hero {
   task_progress: number;
   task_total: number;
   inventory_max_items: number;
-  inventory: Inventory[];
+  inventory: IInventory[];
 }

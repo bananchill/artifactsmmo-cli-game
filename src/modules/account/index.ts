@@ -3,12 +3,15 @@ import type { IBankItems } from "./types.js";
 import { HttpClient, HttpClientRequest } from "@effect/platform";
 import { NodeHttpClient } from "@effect/platform-node";
 import type { HttpClientError } from "@effect/platform/HttpClientError";
+import { GameConfig } from "../../config/config.js";
+import { requestGet } from "../../common/http/index.js";
+import type { ConfigError } from "effect/ConfigError";
 
 export class AccountInfo extends Context.Tag("AccountInfo")<
   AccountInfo,
   {
-    getBankDetails: () => Effect.Effect<any, HttpClientError>;
-    getBankItems: () => Effect.Effect<IBankItems>;
+    getBankDetails: () => Effect.Effect<any, HttpClientError | ConfigError>;
+    getBankItems: () => Effect.Effect<IBankItems, HttpClientError | ConfigError>;
   }
 >() {}
 
@@ -20,15 +23,18 @@ export const AccountInfoLive = Layer.effect(
     return {
       getBankDetails: () =>
         Effect.gen(function* () {
-          const request = HttpClientRequest.get("https://jsonplaceholder.typicode.com/users/1");
+          const request = yield* requestGet("/my/bank");
 
           const response = yield* client.execute(request);
 
           return yield* response.json;
         }),
-      getBankItems: () => {
-        return {} as any;
-      },
+      getBankItems: () =>
+        Effect.gen(function* () {
+          const request = yield* requestGet("/my/bank/items");
+          const response = yield* client.execute(request);
+          return (yield* response.json) as IBankItems;
+        }),
     };
   }),
 );

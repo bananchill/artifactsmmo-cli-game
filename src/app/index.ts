@@ -6,6 +6,7 @@ import { Terminal } from "@effect/platform";
 import type { PlatformError } from "@effect/platform/Error";
 import { Effect, Option, Random } from "effect";
 import { NodeHttpClient, NodeRuntime, NodeTerminal } from "@effect/platform-node";
+import { provider } from "../config/config.js";
 
 // // Generate a secret random number between 1 and 100
 // const secret = Random.nextIntBetween(1, 100);
@@ -90,7 +91,9 @@ import { NodeHttpClient, NodeRuntime, NodeTerminal } from "@effect/platform-node
 
 // Run the game
 // NodeRuntime.runMain(game.pipe(Effect.provide(NodeTerminal.layer)));
-NodeRuntime.runMain(ActionsProgram.pipe(Effect.provide(ActionRegistryLive)));
+NodeRuntime.runMain(
+  ActionsProgram.pipe(Effect.withConfigProvider(provider), Effect.provide(ActionRegistryLive)),
+);
 // Effect.suspend(() => cli(process.argv)).pipe(
 //   Effect.provide(NodeTerminal.layer),
 //   Effect.scoped,

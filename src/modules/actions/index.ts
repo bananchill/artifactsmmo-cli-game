@@ -4,11 +4,14 @@ import { AccountInfo, AccountMainLive } from "../account/index.js";
 import type { PlatformError } from "@effect/platform/Error";
 import type { QuitException } from "@effect/platform/Terminal";
 import type { HttpClientError } from "@effect/platform/HttpClientError";
+import type { ConfigError } from "effect/ConfigError";
 class ActionsService extends Context.Tag("ActionsService")<
   ActionsService,
   {
     readonly get: () => Effect.Effect<string, PlatformError | QuitException, never>;
-    readonly active: (action: string) => Effect.Effect<void, PlatformError | HttpClientError>;
+    readonly active: (
+      action: string,
+    ) => Effect.Effect<void, PlatformError | HttpClientError | ConfigError>;
   }
 >() {}
 
