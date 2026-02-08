@@ -1,5 +1,5 @@
 // import { Effect } from "effect";
-import { ActionRegistryLive, ActionsProgram } from "../modules/actions/index.js";
+import { ActionRegistryLive, ActionsProgram } from "../modules/hero/service/actions.js";
 // import { NodeRuntime } from "@effect/platform-node";
 
 import { Terminal } from "@effect/platform";

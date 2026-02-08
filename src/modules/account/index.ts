@@ -1,11 +1,9 @@
 import { Context, Effect, Layer } from "effect";
 import type { IBankItems } from "./types.js";
-import { HttpClient, HttpClientRequest } from "@effect/platform";
-import { NodeHttpClient } from "@effect/platform-node";
 import type { HttpClientError } from "@effect/platform/HttpClientError";
-import { GameConfig } from "../../config/config.js";
-import { requestGet } from "../../common/http/index.js";
+
 import type { ConfigError } from "effect/ConfigError";
+import { HttpApiClient, HttpApiClientMainLive } from "../../common/http/index.js";
 
 export class AccountInfo extends Context.Tag("AccountInfo")<
   AccountInfo,
@@ -18,25 +16,22 @@ export class AccountInfo extends Context.Tag("AccountInfo")<
 export const AccountInfoLive = Layer.effect(
   AccountInfo,
   Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient;
+    // Вынести в слой
+    const client = yield* HttpApiClient;
 
     return {
       getBankDetails: () =>
         Effect.gen(function* () {
-          const request = yield* requestGet("/my/bank");
-
-          const response = yield* client.execute(request);
-
-          return yield* response.json;
+          const result = yield* client.get<any>("/my/bank");
+          return result;
         }),
       getBankItems: () =>
         Effect.gen(function* () {
-          const request = yield* requestGet("/my/bank/items");
-          const response = yield* client.execute(request);
-          return (yield* response.json) as IBankItems;
+          const result = yield* client.get<IBankItems>("/my/bank/items");
+          return result;
         }),
     };
   }),
 );
 
-export const AccountMainLive = AccountInfoLive.pipe(Layer.provide(NodeHttpClient.layer));
+export const AccountMainLive = AccountInfoLive.pipe(Layer.provide(HttpApiClientMainLive));
